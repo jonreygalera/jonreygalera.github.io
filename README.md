@@ -4,11 +4,11 @@ This repository contains the privacy policies for applications developed by [Jon
 
 ## 📂 Project Structure
 
-- **[niyaw/](niyaw/)**: Contains the privacy policy for the **Niyaw** app.
+- **[niyaw/](niyaw/privacy-policy.html)**: Contains the privacy policy for the **Niyaw** app.
   - `privacy-policy.html`: The main privacy policy document (100% offline-ready, local-first data storage).
   - `app_logo.webp`: Brand assets for the policy page.
   - `app_logo.ico`: Page icon.
-- **[say_mate/](say_mate/)**: Contains the privacy policy for the **SayMate** AAC app.
+- **[say_mate/](say_mate/privacy-policy.html)**: Contains the privacy policy for the **SayMate** AAC app.
   - `privacy-policy.html`: The main privacy policy document.
   - `saymate_logo.webp`: Brand assets for the policy page.
   - `favicon.ico`: Page icon.

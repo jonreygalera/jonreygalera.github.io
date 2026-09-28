@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | Niyaw</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #E58000;
+            --primary-dark: #D97406;
+            --primary-light: #FFF6E5;
+            --secondary: #F7C59F;
+            --text-main: #1E293B;
+            --text-muted: #64748B;
+            --text-brown: #5C3A21;
+            --text-brown-muted: #B47846;
+            --bg-body: #F8FAFC;
+            --bg-card: #FFFFFF;
+            --bg-warm-card: #FFF8EA;
+            --border: #E2E8F0;
+            --border-warm: #FFECCC;
+            --radius: 16px;
+            --shadow: 0 10px 25px -5px rgba(229, 128, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1,
+        h2,
+        h3,
+        .brand-text {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .header {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 1.1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 840px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--text-brown);
+            font-weight: 800;
+            font-size: 1.35rem;
+        }
+
+        .brand img {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            object-fit: contain;
+            background-color: var(--primary-light);
+            padding: 4px;
+        }
+
+        .brand-subtitle {
+            font-size: 0.7rem;
+            color: var(--primary-dark);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 700;
+            display: block;
+            margin-top: -2px;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--primary-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            background-color: var(--primary-light);
+            transition: all 0.2s ease;
+        }
+
+        .nav-link:hover {
+            background-color: var(--secondary);
+            color: var(--text-brown);
+        }
+
+        .main {
+            padding: 3rem 0;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 2.75rem;
+            box-shadow: var(--shadow);
+        }
+
+        .title-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            font-size: 0.825rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-warm);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-brown);
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .tagline-sub {
+            color: var(--text-brown-muted);
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .last-updated {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .toc {
+            background-color: var(--bg-warm-card);
+            border-radius: 14px;
+            padding: 1.5rem;
+            margin-bottom: 2.5rem;
+            border: 1px solid var(--border-warm);
+            border-left: 5px solid var(--primary);
+        }
+
+        .toc h2 {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 1rem;
+            color: var(--text-brown);
+        }
+
+        .toc h2::before {
+            display: none;
+        }
+
+        .toc ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 0.6rem;
+            margin-left: 0;
+        }
+
+        .toc a {
+            color: var(--text-brown-muted);
+            text-decoration: none;
+            font-size: 0.925rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .toc a:hover {
+            color: var(--primary-dark);
+        }
+
+        section {
+            margin-bottom: 2.75rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-brown);
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 5px;
+            height: 1.5rem;
+            background-color: var(--primary);
+            border-radius: 3px;
+        }
+
+        h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--text-brown);
+            margin: 1.5rem 0 0.75rem 0;
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-main);
+        }
+
+        ul {
+            margin-bottom: 1rem;
+            margin-left: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .callout {
+            background-color: var(--primary-light);
+            border-left: 4px solid var(--primary);
+            padding: 1.25rem;
+            border-radius: 0 12px 12px 0;
+            margin: 1.5rem 0;
+            font-size: 0.95rem;
+            color: var(--text-brown);
+        }
+
+        .callout strong {
+            color: var(--primary-dark);
+        }
+
+        .simple-view {
+            background-color: var(--bg-warm-card);
+            border: 1px solid var(--border-warm);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        .simple-view h2 {
+            border: none;
+            margin-bottom: 1.5rem;
+            color: var(--text-brown);
+        }
+
+        .simple-view h2::before {
+            display: none;
+        }
+
+        .grid-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            font-weight: 500;
+            color: var(--text-brown);
+            background: white;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-warm);
+        }
+
+        .emoji {
+            font-size: 1.35rem;
+        }
+
+        .tldr {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2rem;
+            border-radius: 16px;
+            margin-top: 2rem;
+            box-shadow: 0 10px 20px -5px rgba(229, 128, 0, 0.3);
+        }
+
+        .tldr h2 {
+            color: white;
+            border: none;
+        }
+
+        .tldr h2::before {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .tldr p {
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border);
+            margin: 2.5rem 0;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 4rem 0;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .contact-links {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .contact-links a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .contact-links a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .card {
+                padding: 1.5rem;
+                border-radius: 0;
+                border-left: 0;
+                border-right: 0;
+            }
+
+            h1 {
+                font-size: 1.85rem;
+            }
+
+            .toc ul {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container header-content">
+            <a href="#" class="brand">
+                <img src="app_logo.webp" alt="Niyaw Logo" onerror="this.src='favicon.ico'; this.onerror=null;">
+                <div>
+                    <div>Niyaw</div>
+                    <span class="brand-subtitle">Financial Tracker</span>
+                </div>
+            </a>
+            <a href="https://jonreygalera.vercel.app" class="nav-link">Developer Portfolio →</a>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <article class="card">
+                <div class="title-badge">🐾 Privacy First & Local-First</div>
+                <h1>Privacy Policy</h1>
+                <p class="tagline-sub">Track. Save. Grow.</p>
+                <span class="last-updated">Last Updated: September 28, 2026</span>
+
+                <nav class="toc">
+                    <h2>Contents</h2>
+                    <ul>
+                        <li><a href="#introduction">1. Introduction</a></li>
+                        <li><a href="#architecture">2. Local-First Architecture</a></li>
+                        <li><a href="#collect">3. Information We Process</a></li>
+                        <li><a href="#use">4. How We Use Data</a></li>
+                        <li><a href="#permissions">5. Device Permissions</a></li>
+                        <li><a href="#auth">6. User Accounts & Offline Operation</a></li>
+                        <li><a href="#sharing">7. Data Sharing & Security</a></li>
+                        <li><a href="#rights">8. User Rights & Data Control</a></li>
+                        <li><a href="#contact">9. Contact Us</a></li>
+                    </ul>
+                </nav>
+
+                <section id="introduction">
+                    <h2>1. Introduction</h2>
+                    <p>Welcome to <strong>Niyaw</strong> (“we”, “our”, or “us”). Niyaw is a calm, personal finance
+                        tracking companion designed to help you track expenses, plan budgets, manage accounts, monitor
+                        debt payments, and reach your financial goals with feline clarity and ease.</p>
+                    <p>We take financial privacy very seriously. Niyaw is built on a <strong>local-first
+                            principle</strong>: your financial numbers belong to you and remain stored locally on your
+                        device by default.</p>
+                </section>
+
+                <hr>
+
+                <section id="architecture">
+                    <h2>2. Local-First Architecture</h2>
+                    <p>Niyaw operates primarily offline. All your account balances, categories, income, expenses,
+                        transfer logs, budgets, financial goals, debt records, and subscription trackers are saved
+                        directly in an encrypted SQLite database on your device.</p>
+                    <div class="callout">
+                        <strong>Local Source of Truth:</strong> You do not need an account or internet connection to use
+                        Niyaw. Your financial entries remain strictly on your device and are never sent to external
+                        servers or cloud services.
+                    </div>
+                </section>
+
+                <hr>
+
+                <section id="collect">
+                    <h2>3. Information We Process</h2>
+
+                    <h3>3.1 Financial & Transactional Data</h3>
+                    <p>When you use Niyaw, the following data is processed locally on your device:</p>
+                    <ul>
+                        <li><strong>Account Details:</strong> Account names, types (e.g., cash, bank, e-wallet),
+                            balances, and icons.</li>
+                        <li><strong>Transactions:</strong> Amount, date, notes, categories, tags, payee info, and
+                            payment mode.</li>
+                        <li><strong>Planning & Tools:</strong> Budgets, savings goals, loan repayment records, money
+                            rules entries, and subscription renewal schedules.</li>
+                        <li><strong>Receipt Images:</strong> Photos or documents you choose to attach to transactions or
+                            scan via the receipt scanner tool.</li>
+                    </ul>
+
+                    <h3>3.2 Account Profile Information</h3>
+                    <p>Niyaw operates as a local-first application. Any profile preferences or avatar choices you
+                        configure in the app are stored exclusively on your device inside your local database.</p>
+                </section>
+
+                <hr>
+
+                <section id="use">
+                    <h2>4. How We Use Data</h2>
+                    <p>We process your data strictly to deliver personal finance tracking functionality:</p>
+                    <ul>
+                        <li>Calculate balances, net worth, cash flow, budget limits, and financial stats.</li>
+                        <li>Process receipt image scanning using device vision / OCR tools.</li>
+                        <li>Provide reminders for upcoming subscription renewals and debt payments.</li>
+                        <li>Import/Export financial records (CSV format) upon your explicit request.</li>
+                    </ul>
+                    <p>We <strong>NEVER</strong> sell your financial data, market your transactions to third parties, or
+                        use your private numbers for ad profiling.</p>
+                </section>
+
+                <hr>
+
+                <section id="permissions">
+                    <h2>5. Device Permissions</h2>
+                    <p>Niyaw may request specific device permissions strictly when you interact with features that
+                        require them:</p>
+                    <ul>
+                        <li><strong>Camera:</strong> Used only when taking a photo of a receipt or scanning
+                            barcode/receipt documents within the app.</li>
+                        <li><strong>Photo Library / Media Storage:</strong> Used to attach receipt photos or
+                            import/export data files to your device storage.</li>
+                        <li><strong>Notifications (Optional):</strong> Used to deliver localized reminders for debt
+                            payments, budget alerts, and subscription renewals.</li>
+                    </ul>
+                    <div class="callout">
+                        Permissions are optional and are requested <strong>only when you trigger the corresponding
+                            feature</strong>.
+                    </div>
+                </section>
+
+                <hr>
+
+                <section id="auth">
+                    <h2>6. User Accounts & Offline Operation</h2>
+                    <p>Niyaw is 100% offline-ready and local-first:</p>
+                    <ul>
+                        <li><strong>Local User Account:</strong> All setup, profile information, and financial data live
+                            directly on your device.</li>
+                        <li><strong>No Server Sign-In Required:</strong> You do not need an account, password, or
+                            third-party sign-in to use the application.</li>
+                    </ul>
+                    <p>Your data stays completely private to your physical device.</p>
+                </section>
+
+                <hr>
+
+                <section id="sharing">
+                    <h2>7. Data Sharing & Security</h2>
+                    <p>We uphold strict financial data safety standards:</p>
+                    <ul>
+                        <li><strong>No Data Sales:</strong> We do not sell, rent, or trade your personal or financial
+                            information.</li>
+                        <li><strong>Local-Only Storage:</strong> Your financial records stay on your local device.</li>
+                        <li><strong>Zero Ad-Tracking:</strong> Niyaw contains no third-party behavioral trackers or
+                            target ad networks.</li>
+                    </ul>
+                </section>
+
+                <hr>
+
+                <section id="rights">
+                    <h2>8. User Rights & Data Control</h2>
+                    <p>You maintain 100% control over your financial records in Niyaw:</p>
+                    <ul>
+                        <li><strong>Export Data:</strong> Export all transactions, accounts, categories, and financial
+                            tools to CSV format at any time.</li>
+                        <li><strong>Import / Restore:</strong> Easily import backup files to restore your financial
+                            history.</li>
+                        <li><strong>Reset All Data:</strong> Wipe all local databases and saved app preferences directly
+                            from the app settings screen.</li>
+                    </ul>
+                </section>
+
+                <hr>
+
+                <section id="contact">
+                    <h2>9. Contact Us</h2>
+                    <p>If you have any questions or feedback regarding this Privacy Policy or Niyaw's data protection
+                        practices, please contact us:</p>
+                    <div class="contact-links" style="justify-content: flex-start;">
+                        <a href="mailto:support@niyaw.app">support@niyaw.app</a>
+                        <a href="https://jonreygalera.vercel.app">Developer Portfolio</a>
+                    </div>
+                </section>
+
+                <div class="simple-view">
+                    <h2>Simple View</h2>
+                    <div class="grid-summary">
+                        <div class="summary-item">
+                            <span class="emoji">📱</span>
+                            <span>Local-first: Data stays on your device</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="emoji">❌</span>
+                            <span>Zero data selling or ad tracking</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="emoji">🔒</span>
+                            <span>100% offline & local database</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="emoji">📸</span>
+                            <span>Camera used only for receipt scanning</span>
+                        </div>
+                        <div class="summary-item">
+                            <span class="emoji">💾</span>
+                            <span>Full CSV import & export control</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tldr">
+                    <h2>TL;DR</h2>
+                    <p>Niyaw keeps your personal financial data stored 100% locally on your device with zero online
+                        server sign-in required, requests permissions only when you scan receipts, and never sells or
+                        tracks your financial activity. Private, offline, and secure.</p>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 Niyaw Team. All rights reserved.</p>
+            <div class="contact-links">
+                <a href="mailto:support@niyaw.app">Email Support</a>
+                <a href="https://jonreygalera.vercel.app">Developer Website</a>
+            </div>
+        </div>
+    </footer>
+
+</body>
+
+</html>

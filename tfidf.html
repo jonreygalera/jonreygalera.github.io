@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TF-IDF Visualizer</title>
+    <title>TF-IDF Ticket Title Suggester</title>
 
     <style>
         * {
@@ -49,20 +49,93 @@
         }
 
         .tickets {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            display: flex;
+            flex-direction: column;
             gap: 15px;
+            margin-bottom: 20px;
         }
 
-        .ticket {
+        .ticket-card {
             border: 1px solid #e2e8f0;
             padding: 15px;
             border-radius: 8px;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
-        .ticket strong {
-            display: block;
-            margin-bottom: 8px;
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #334155;
+        }
+
+        .ticket-inputs {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .ticket-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .suggester-box {
+            background: #f0fdf4;
+            border: 2px solid #22c55e;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 20px;
+        }
+
+        .suggester-title {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #15803d;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .suggested-result {
+            font-size: 20px;
+            font-weight: bold;
+            color: #166534;
+        }
+
+        .no-suggestion {
+            color: #991b1b;
+            background: #fef2f2;
+            border-color: #ef4444;
+        }
+
+        .no-suggestion .suggester-title {
+            color: #991b1b;
+        }
+
+        .no-suggestion .suggested-result {
+            color: #991b1b;
         }
 
         .word {
@@ -98,6 +171,9 @@
 
         .score {
             margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
         }
 
         .score-header {
@@ -119,6 +195,10 @@
             transition: width 0.5s;
         }
 
+        .bar-fill.passed {
+            background: #16a34a;
+        }
+
         .buttons {
             display: flex;
             gap: 10px;
@@ -132,6 +212,8 @@
             background: #2563eb;
             color: white;
             cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
         }
 
         button:hover {
@@ -141,6 +223,24 @@
         button:disabled {
             background: #94a3b8;
             cursor: not-allowed;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #64748b;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
         }
 
         .step {
@@ -164,6 +264,42 @@
             margin-top: 20px;
         }
 
+        .input-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+
+        .input-section h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge-success {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-muted {
+            background: #f1f5f9;
+            color: #64748b;
+        }
+
         @media (max-width: 600px) {
             body {
                 padding: 15px;
@@ -180,12 +316,17 @@
 
 <div class="container">
 
-    <h1>TF-IDF Visualizer</h1>
+    <h1>TF-IDF Ticket Title Suggester</h1>
 
     <p class="subtitle">
-        Step through how a text message becomes numbers and how we compare it
-        with previous tickets.
+        Interactive JavaScript implementation of <code>TextNormalizer</code>, <code>Tfidf</code>, and <code>TicketTitleSuggester</code>.
     </p>
+
+    <!-- LIVE SUGGESTER BANNER -->
+    <div id="suggesterBanner" class="suggester-box">
+        <div class="suggester-title">Suggested Ticket Title (Score Threshold &ge; 0.20)</div>
+        <div id="suggestedTitleText" class="suggested-result">--</div>
+    </div>
 
 
     <!-- =========================================================
@@ -198,34 +339,30 @@
             Step 1 of 6
         </div>
 
-        <h2>1. Start with the Corpus</h2>
+        <h2>1. Start with the Corpus & Context</h2>
 
         <p>
-            Our <strong>corpus</strong> is a collection of old tickets.
+            Our <strong>sample tickets</strong> serve as the historical corpus. Input new issue context below to receive title suggestions.
         </p>
 
-        <div class="tickets">
-
-            <div class="ticket">
-                <strong>Ticket 1</strong>
-                login nms error
-            </div>
-
-            <div class="ticket">
-                <strong>Ticket 2</strong>
-                password nms reset
-            </div>
-
-            <div class="ticket">
-                <strong>Ticket 3</strong>
-                login email error
-            </div>
-
+        <div class="input-section">
+            <h3>New Ticket Context / Description</h3>
+            <textarea id="newContextInput" rows="2" placeholder="e.g. User cannot login into the system...">User cannot login into the system</textarea>
         </div>
 
-        <div class="formula">
-            New comment:<br>
-            <strong>I have encountered login error</strong>
+        <div class="input-section">
+            <h3>Configuration & Settings</h3>
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <label for="thresholdInput" style="font-weight: bold; color: #334155;">Similarity Score Threshold:</label>
+                <input type="number" id="thresholdInput" min="0.0" max="1.0" step="0.05" value="0.20" style="width: 100px;">
+                <span style="color: #64748b; font-size: 13px;">(Title will only be suggested if similarity &ge; threshold)</span>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h3>Historical Sample Tickets</h3>
+            <div id="ticketsEditor" class="tickets"></div>
+            <button id="addTicketBtn" class="btn-secondary">+ Add Sample Ticket</button>
         </div>
 
     </div>
@@ -241,17 +378,19 @@
             Step 2 of 6
         </div>
 
-        <h2>2. Build the Vocabulary</h2>
+        <h2>2. Tokenize & Build Vocabulary</h2>
 
         <p>
-            Take every unique word from the corpus.
+            Using <code>TextNormalizer</code> (strip HTML tags, lowercase, keep letters/numbers, split whitespace) to extract unique tokens across all documents.
         </p>
 
         <div id="vocabulary"></div>
 
         <h3>Document Frequency (DF)</h3>
 
-        <table id="dfTable"></table>
+        <div class="table-responsive">
+            <table id="dfTable"></table>
+        </div>
 
     </div>
 
@@ -269,14 +408,16 @@
         <h2>3. Calculate IDF</h2>
 
         <div class="formula">
-            IDF = log₁₀(N / DF)
+            IDF = ln(N / DF)
         </div>
 
-        <p>
-            N = 3 documents
+        <p id="docCountText">
+            N = 7 documents (6 samples + 1 new context)
         </p>
 
-        <table id="idfTable"></table>
+        <div class="table-responsive">
+            <table id="idfTable"></table>
+        </div>
 
     </div>
 
@@ -291,21 +432,23 @@
             Step 4 of 6
         </div>
 
-        <h2>4. Calculate TF</h2>
+        <h2>4. Calculate TF (Term Frequency)</h2>
 
         <p>
-            New comment:
+            Tokens extracted from current context:
         </p>
 
-        <div class="formula">
-            I have encountered login error
+        <div class="formula" id="step4NewCommentText">
+            user cannot login into the system
         </div>
 
         <div class="formula">
-            TF = word count / total words
+            TF = term count in document / total terms in document
         </div>
 
-        <table id="tfTable"></table>
+        <div class="table-responsive">
+            <table id="tfTable"></table>
+        </div>
 
     </div>
 
@@ -320,26 +463,21 @@
             Step 5 of 6
         </div>
 
-        <h2>5. Calculate TF-IDF</h2>
+        <h2>5. Calculate TF-IDF Vectors</h2>
 
         <div class="formula">
-            TF-IDF = TF × IDF
+            TF-IDF = TF &times; IDF
         </div>
 
-        <h3>New Comment Vector</h3>
+        <h3>New Context Vector (Sparse)</h3>
 
-        <table id="vectorTable"></table>
+        <div class="table-responsive">
+            <table id="vectorTable"></table>
+        </div>
 
         <div class="result">
-
-            <strong>Important:</strong>
-
-            <p>
-                The text has now become a vector of numbers.
-            </p>
-
-            <p id="vectorText"></p>
-
+            <strong>Vector JSON Object:</strong>
+            <pre id="vectorText" style="margin-top: 10px; font-family: monospace; white-space: pre-wrap;"></pre>
         </div>
 
     </div>
@@ -355,25 +493,21 @@
             Step 6 of 6
         </div>
 
-        <h2>6. Cosine Similarity</h2>
+        <h2>6. Cosine Similarity & Title Suggestion</h2>
 
         <div class="formula">
-            similarity =
-            (A · B) / (|A| × |B|)
+            Cosine Similarity = (A &middot; B) / (|A| &times; |B|)
         </div>
 
         <p>
-            Compare the new comment against each ticket.
+            Comparing new context vector against each sample ticket vector (Threshold: <strong>0.20</strong>).
         </p>
 
         <div id="scores"></div>
 
         <div class="result">
-
-            <strong>Result</strong>
-
+            <strong>Final Suggestion Result</strong>
             <p id="resultText"></p>
-
         </div>
 
     </div>
@@ -386,11 +520,11 @@
     <div class="buttons">
 
         <button id="previousButton">
-            ← Previous
+            &larr; Previous
         </button>
 
         <button id="nextButton">
-            Next →
+            Next &rarr;
         </button>
 
     </div>
@@ -402,503 +536,220 @@
 
     /*
      * ============================================================
-     * DATA
+     * CLASS IMPLEMENTATIONS (PHP PARITY)
      * ============================================================
      */
 
-    const documents = [
+    class TextNormalizer {
+        normalize(text) {
+            if (!text) return "";
 
-        ["login", "nms", "error"],
+            // Strip tags
+            let cleaned = text.replace(/<[^>]*>?/gm, '');
 
-        ["password", "nms", "reset"],
+            // Lowercase
+            cleaned = cleaned.toLowerCase();
 
-        ["login", "email", "error"]
+            // Keep numbers & unicode letters/spaces
+            cleaned = cleaned.replace(/[^\p{L}\p{N}\s]/gu, ' ');
 
-    ];
+            // Replace multiple spaces with a single space
+            cleaned = cleaned.replace(/\s+/gu, ' ');
 
-    const newComment = [
-
-        "i",
-        "have",
-        "encountered",
-        "login",
-        "error"
-
-    ];
-
-
-    /*
-     * ============================================================
-     * 1. BUILD VOCABULARY
-     * ============================================================
-     */
-
-    const vocabulary = [
-        ...new Set(
-            documents.flat()
-        )
-    ];
-
-    console.log("Vocabulary:", vocabulary);
-
-
-    /*
-     * ============================================================
-     * 2. DOCUMENT FREQUENCY
-     * ============================================================
-     *
-     * DF = number of documents containing the word
-     *
-     * login  -> 2
-     * nms    -> 2
-     * error  -> 2
-     * password -> 1
-     * reset    -> 1
-     * email    -> 1
-     */
-
-    const df = {};
-
-    vocabulary.forEach(word => {
-
-        df[word] = documents.filter(document =>
-
-            document.includes(word)
-
-        ).length;
-
-    });
-
-
-    /*
-     * ============================================================
-     * 3. IDF
-     * ============================================================
-     *
-     * IDF = log10(N / DF)
-     *
-     * N = number of documents
-     */
-
-    const N = documents.length;
-
-    const idf = {};
-
-    vocabulary.forEach(word => {
-
-        idf[word] =
-            Math.log10(N / df[word]);
-
-    });
-
-
-    /*
-     * ============================================================
-     * 4. TF
-     * ============================================================
-     *
-     * TF = word count / total words
-     */
-
-    function calculateTF(words, word) {
-
-        const count =
-            words.filter(
-                item => item === word
-            ).length;
-
-        return count / words.length;
-    }
-
-
-    /*
-     * ============================================================
-     * 5. TF-IDF
-     * ============================================================
-     */
-
-    function calculateTFIDF(words) {
-
-        return vocabulary.map(word => {
-
-            const tf =
-                calculateTF(words, word);
-
-            const value =
-                tf * idf[word];
-
-            return value;
-
-        });
-
-    }
-
-
-    /*
-     * ============================================================
-     * VECTORS
-     * ============================================================
-     */
-
-    const ticketVectors =
-        documents.map(document => {
-
-            return calculateTFIDF(document);
-
-        });
-
-
-    const newCommentVector =
-        calculateTFIDF(newComment);
-
-
-    console.log(
-        "New comment vector:",
-        newCommentVector
-    );
-
-
-    /*
-     * ============================================================
-     * 6. COSINE SIMILARITY
-     * ============================================================
-     */
-
-    function cosineSimilarity(A, B) {
-
-        let dotProduct = 0;
-
-        let magnitudeA = 0;
-
-        let magnitudeB = 0;
-
-
-        for (let i = 0; i < A.length; i++) {
-
-            dotProduct +=
-                A[i] * B[i];
-
-            magnitudeA +=
-                A[i] * A[i];
-
-            magnitudeB +=
-                B[i] * B[i];
-
+            return cleaned.trim();
         }
 
-
-        magnitudeA =
-            Math.sqrt(magnitudeA);
-
-        magnitudeB =
-            Math.sqrt(magnitudeB);
-
-
-        if (
-            magnitudeA === 0 ||
-            magnitudeB === 0
-        ) {
-
-            return 0;
-
-        }
-
-
-        return (
-            dotProduct /
-            (magnitudeA * magnitudeB)
-        );
-
-    }
-
-
-    /*
-     * ============================================================
-     * CALCULATE SIMILARITIES
-     * ============================================================
-     */
-
-    const similarities =
-        ticketVectors.map(vector => {
-
-            return cosineSimilarity(
-                newCommentVector,
-                vector
-            );
-
-        });
-
-
-    console.log(
-        "Similarities:",
-        similarities
-    );
-
-
-    /*
-     * ============================================================
-     * RENDER VOCABULARY
-     * ============================================================
-     */
-
-    const vocabularyElement =
-        document.getElementById("vocabulary");
-
-
-    vocabularyElement.innerHTML =
-        vocabulary.map(word => {
-
-            return `
-                <span class="word">
-                    ${word}
-                </span>
-            `;
-
-        }).join("");
-
-
-    /*
-     * ============================================================
-     * RENDER DF TABLE
-     * ============================================================
-     */
-
-    document.getElementById("dfTable").innerHTML = `
-
-        <tr>
-            <th>Word</th>
-            <th>DF</th>
-            <th>Meaning</th>
-        </tr>
-
-        ${vocabulary.map(word => `
-
-            <tr>
-
-                <td>
-                    <strong>${word}</strong>
-                </td>
-
-                <td>
-                    ${df[word]}
-                </td>
-
-                <td>
-                    Appears in ${df[word]} document(s)
-                </td>
-
-            </tr>
-
-        `).join("")}
-
-    `;
-
-
-    /*
-     * ============================================================
-     * RENDER IDF TABLE
-     * ============================================================
-     */
-
-    document.getElementById("idfTable").innerHTML = `
-
-        <tr>
-            <th>Word</th>
-            <th>DF</th>
-            <th>IDF</th>
-        </tr>
-
-        ${vocabulary.map(word => `
-
-            <tr>
-
-                <td>
-                    ${word}
-                </td>
-
-                <td>
-                    ${df[word]}
-                </td>
-
-                <td>
-                    ${idf[word].toFixed(4)}
-                </td>
-
-            </tr>
-
-        `).join("")}
-
-    `;
-
-
-    /*
-     * ============================================================
-     * RENDER TF TABLE
-     * ============================================================
-     */
-
-    document.getElementById("tfTable").innerHTML = `
-
-        <tr>
-
-            <th>Word</th>
-            <th>Count</th>
-            <th>TF</th>
-
-        </tr>
-
-        ${vocabulary.map(word => {
-
-            const count =
-                newComment.filter(
-                    item => item === word
-                ).length;
-
-            const tf =
-                calculateTF(
-                    newComment,
-                    word
-                );
-
-            return `
-
-                <tr
-                    class="${
-                        count > 0
-                            ? "highlight"
-                            : ""
-                    }"
-                >
-
-                    <td>
-                        ${word}
-                    </td>
-
-                    <td>
-                        ${count}
-                    </td>
-
-                    <td>
-                        ${tf.toFixed(2)}
-                    </td>
-
-                </tr>
-
-            `;
-
-        }).join("")}
-
-    `;
-
-
-    /*
-     * ============================================================
-     * RENDER TF-IDF VECTOR
-     * ============================================================
-     */
-
-    document.getElementById("vectorTable").innerHTML = `
-
-        <tr>
-
-            ${vocabulary.map(word => `
-                <th>${word}</th>
-            `).join("")}
-
-        </tr>
-
-        <tr>
-
-            ${newCommentVector.map(value => `
-                <td>
-                    ${value.toFixed(5)}
-                </td>
-            `).join("")}
-
-        </tr>
-
-    `;
-
-
-    document.getElementById("vectorText").textContent =
-
-        `[${newCommentVector
-            .map(value => value.toFixed(5))
-            .join(", ")}]`;
-
-
-    /*
-     * ============================================================
-     * RENDER SIMILARITY SCORES
-     * ============================================================
-     */
-
-    const scoresElement =
-        document.getElementById("scores");
-
-
-    scoresElement.innerHTML =
-        similarities.map(
-            (score, index) => {
-
-                return `
-
-                    <div class="score">
-
-                        <div class="score-header">
-
-                            <strong>
-                                Ticket ${index + 1}
-                            </strong>
-
-                            <strong>
-                                ${score.toFixed(3)}
-                            </strong>
-
-                        </div>
-
-                        <div class="bar">
-
-                            <div
-                                class="bar-fill"
-                                style="
-                                    width: ${score * 100}%;
-                                "
-                            ></div>
-
-                        </div>
-
-                        <small>
-                            ${documents[index].join(" ")}
-                        </small>
-
-                    </div>
-
-                `;
-
+        tokenize(text) {
+            const normalized = this.normalize(text);
+
+            if (normalized === '') {
+                return [];
             }
-        ).join("");
+
+            return normalized.split(/\s+/u);
+        }
+    }
+
+    class Tfidf {
+        /**
+         * @param {Object.<string, string[]>} documents
+         */
+        buildVectors(documents) {
+            const docIds = Object.keys(documents);
+            const documentCount = docIds.length;
+
+            if (documentCount === 0) {
+                return { vectors: {}, documentFrequency: {}, documentCount: 0 };
+            }
+
+            const documentFrequency = {};
+
+            for (const id of docIds) {
+                const tokens = documents[id];
+                const uniqueTokens = [...new Set(tokens)];
+                for (const token of uniqueTokens) {
+                    documentFrequency[token] = (documentFrequency[token] || 0) + 1;
+                }
+            }
+
+            const vectors = {};
+
+            for (const id of docIds) {
+                const tokens = documents[id];
+                const totalTerms = tokens.length;
+
+                if (totalTerms === 0) {
+                    vectors[id] = {};
+                    continue;
+                }
+
+                // Count frequencies
+                const termFrequency = {};
+                for (const token of tokens) {
+                    termFrequency[token] = (termFrequency[token] || 0) + 1;
+                }
+
+                const vector = {};
+
+                for (const term in termFrequency) {
+                    const frequency = termFrequency[term];
+                    const tf = frequency / totalTerms;
+                    const df = documentFrequency[term];
+                    const idf = Math.log(documentCount / df);
+
+                    vector[term] = tf * idf;
+                }
+
+                vectors[id] = vector;
+            }
+
+            return { vectors, documentFrequency, documentCount };
+        }
+
+        /**
+         * @param {Object.<string, number>} a
+         * @param {Object.<string, number>} b
+         */
+        cosineSimilarity(a, b) {
+            if (!a || !b || Object.keys(a).length === 0 || Object.keys(b).length === 0) {
+                return 0.0;
+            }
+
+            let dotProduct = 0.0;
+            let magnitudeA = 0.0;
+            let magnitudeB = 0.0;
+
+            for (const term in a) {
+                const weight = a[term];
+                if (Object.prototype.hasOwnProperty.call(b, term)) {
+                    dotProduct += weight * b[term];
+                }
+                magnitudeA += Math.pow(weight, 2);
+            }
+
+            for (const term in b) {
+                const weight = b[term];
+                magnitudeB += Math.pow(weight, 2);
+            }
+
+            if (magnitudeA === 0.0 || magnitudeB === 0.0) {
+                return 0.0;
+            }
+
+            return dotProduct / (Math.sqrt(magnitudeA) * Math.sqrt(magnitudeB));
+        }
+    }
+
+    class TicketTitleSuggester {
+        constructor(normalizer, tfidf) {
+            this.normalizer = normalizer;
+            this.tfidf = tfidf;
+        }
+
+        suggest(context, samples, threshold = 0.2) {
+            const documents = {};
+
+            samples.forEach(sample => {
+                documents[sample.id] = this.normalizer.tokenize(sample.description);
+            });
+
+            documents['new'] = this.normalizer.tokenize(context);
+
+            const { vectors, documentFrequency, documentCount } = this.tfidf.buildVectors(documents);
+
+            const newVector = vectors['new'] || {};
+
+            if (Object.keys(newVector).length === 0) {
+                return { title: null, bestMatch: null, scores: [], vectors, documentFrequency, documentCount };
+            }
+
+            const scores = samples.map(sample => {
+                const sampleVector = vectors[sample.id] || {};
+                const score = this.tfidf.cosineSimilarity(newVector, sampleVector);
+                return {
+                    sample,
+                    score
+                };
+            });
+
+            scores.sort((a, b) => b.score - a.score);
+
+            const bestMatch = scores.length > 0 ? scores[0] : null;
+
+            if (!bestMatch || bestMatch.score < threshold) {
+                return { title: null, bestMatch, scores, vectors, documentFrequency, documentCount };
+            }
+
+            return { title: bestMatch.sample.title, bestMatch, scores, vectors, documentFrequency, documentCount };
+        }
+    }
 
 
     /*
      * ============================================================
-     * FIND HIGHEST SIMILARITY
+     * STATE & INITIAL SAMPLES
      * ============================================================
      */
 
-    const highestScore =
-        Math.max(...similarities);
+    const normalizer = new TextNormalizer();
+    const tfidf = new Tfidf();
+    const suggester = new TicketTitleSuggester(normalizer, tfidf);
 
-    const bestTicket =
-        similarities.indexOf(highestScore);
+    let samples = [
+        {
+            id: 1,
+            title: 'API Server Error',
+            description: 'API is returning 500 errors after deployment',
+        },
+        {
+            id: 2,
+            title: 'Database Connection Timeout',
+            description: 'Application cannot connect to the database',
+        },
+        {
+            id: 3,
+            title: 'User Login Issue',
+            description: 'Users are unable to login to the system',
+        },
+        {
+            id: 4,
+            title: 'Payroll Report Not Generating',
+            description: 'Payroll report fails when generating the report',
+        },
+        {
+            id: 5,
+            title: 'Email Notification Failure',
+            description: 'Email notifications are not being sent to users',
+        },
+        {
+            id: 6,
+            title: 'System Login Issue',
+            description: 'User cannot login into the system',
+        }
+    ];
 
-
-    document.getElementById("resultText").textContent =
-
-        `Ticket ${bestTicket + 1} has the highest
-         similarity score in this example:
-         ${highestScore.toFixed(3)}.`;
-
+    let currentContext = "User cannot login into the system";
+    let currentThreshold = 0.20;
 
     /*
      * ============================================================
@@ -906,91 +757,274 @@
      * ============================================================
      */
 
-    const steps =
-        document.querySelectorAll(".step");
-
+    const steps = document.querySelectorAll(".step");
     let currentStep = 0;
 
-
     function showStep(step) {
+        steps.forEach((element, index) => {
+            element.classList.toggle("active", index === step);
+        });
 
-        steps.forEach(
-            (element, index) => {
-
-                element.classList.toggle(
-                    "active",
-                    index === step
-                );
-
-            }
-        );
-
-
-        document.getElementById(
-            "previousButton"
-        ).disabled =
-            step === 0;
-
-
-        document.getElementById(
-            "nextButton"
-        ).disabled =
-            step === steps.length - 1;
-
+        document.getElementById("previousButton").disabled = step === 0;
+        document.getElementById("nextButton").disabled = step === steps.length - 1;
     }
 
-
-    /*
-     * NEXT
-     */
-
-    document.getElementById(
-        "nextButton"
-    ).addEventListener(
-        "click",
-        () => {
-
-            if (
-                currentStep <
-                steps.length - 1
-            ) {
-
-                currentStep++;
-
-                showStep(currentStep);
-
-            }
-
+    document.getElementById("nextButton").addEventListener("click", () => {
+        if (currentStep < steps.length - 1) {
+            currentStep++;
+            showStep(currentStep);
         }
-    );
+    });
 
-
-    /*
-     * PREVIOUS
-     */
-
-    document.getElementById(
-        "previousButton"
-    ).addEventListener(
-        "click",
-        () => {
-
-            if (currentStep > 0) {
-
-                currentStep--;
-
-                showStep(currentStep);
-
-            }
-
+    document.getElementById("previousButton").addEventListener("click", () => {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
         }
-    );
-
+    });
 
     /*
-     * INITIAL STATE
+     * ============================================================
+     * RE-CALCULATION & RENDER ENGINE
+     * ============================================================
      */
 
+    function updateCalculations() {
+        const result = suggester.suggest(currentContext, samples, currentThreshold);
+
+        // Banner update
+        const banner = document.getElementById("suggesterBanner");
+        const bannerText = document.getElementById("suggestedTitleText");
+        const bannerTitle = banner.querySelector(".suggester-title");
+        
+        bannerTitle.textContent = `Suggested Ticket Title (Score Threshold \u2265 ${currentThreshold.toFixed(2)})`;
+
+        if (result.title) {
+            banner.classList.remove("no-suggestion");
+            bannerText.textContent = `"${result.title}" (Score: ${result.bestMatch.score.toFixed(4)})`;
+        } else {
+            banner.classList.add("no-suggestion");
+            const topScore = result.bestMatch ? result.bestMatch.score.toFixed(4) : "0.0000";
+            bannerText.textContent = `No Title Suggested (Top Score: ${topScore} < ${currentThreshold.toFixed(2)} threshold)`;
+        }
+
+        // 1. Vocabulary
+        const docTokens = {};
+        samples.forEach(s => {
+            docTokens[s.id] = normalizer.tokenize(s.description);
+        });
+        const newTokens = normalizer.tokenize(currentContext);
+        docTokens['new'] = newTokens;
+
+        const allTokens = Object.values(docTokens).flat();
+        const vocabulary = [...new Set(allTokens)];
+        const df = result.documentFrequency || {};
+        const N = result.documentCount || 0;
+
+        // Step 2 Render
+        const vocabularyElement = document.getElementById("vocabulary");
+        if (vocabulary.length === 0) {
+            vocabularyElement.innerHTML = "<em>No tokens found.</em>";
+            document.getElementById("dfTable").innerHTML = "";
+        } else {
+            vocabularyElement.innerHTML = vocabulary.map(word => `<span class="word">${word}</span>`).join("");
+            document.getElementById("dfTable").innerHTML = `
+                <tr>
+                    <th>Token</th>
+                    <th>Document Frequency (DF)</th>
+                    <th>Description</th>
+                </tr>
+                ${vocabulary.map(word => `
+                    <tr>
+                        <td><strong>${word}</strong></td>
+                        <td>${df[word] || 0}</td>
+                        <td>Appears in ${df[word] || 0} document(s)</td>
+                    </tr>
+                `).join("")}
+            `;
+        }
+
+        // Step 3 Render
+        document.getElementById("docCountText").textContent = `N = ${N} document(s) (${samples.length} samples + 1 new context)`;
+
+        if (vocabulary.length === 0) {
+            document.getElementById("idfTable").innerHTML = "";
+        } else {
+            document.getElementById("idfTable").innerHTML = `
+                <tr>
+                    <th>Token</th>
+                    <th>DF</th>
+                    <th>IDF = ln(N / DF)</th>
+                </tr>
+                ${vocabulary.map(word => {
+                    const wordDf = df[word] || 0;
+                    const idfVal = wordDf > 0 ? Math.log(N / wordDf) : 0;
+                    return `
+                        <tr>
+                            <td><strong>${word}</strong></td>
+                            <td>${wordDf}</td>
+                            <td>${idfVal.toFixed(4)}</td>
+                        </tr>
+                    `;
+                }).join("")}
+            `;
+        }
+
+        // Step 4 Render
+        document.getElementById("step4NewCommentText").textContent = currentContext || "(Empty context)";
+
+        if (vocabulary.length === 0) {
+            document.getElementById("tfTable").innerHTML = "";
+        } else {
+            const tokenCounts = {};
+            newTokens.forEach(t => { tokenCounts[t] = (tokenCounts[t] || 0) + 1; });
+            const totalNewTokens = newTokens.length;
+
+            document.getElementById("tfTable").innerHTML = `
+                <tr>
+                    <th>Token</th>
+                    <th>Count in Context</th>
+                    <th>TF (Count / ${totalNewTokens})</th>
+                </tr>
+                ${vocabulary.map(word => {
+                    const count = tokenCounts[word] || 0;
+                    const tfVal = totalNewTokens > 0 ? count / totalNewTokens : 0;
+                    return `
+                        <tr class="${count > 0 ? "highlight" : ""}">
+                            <td><strong>${word}</strong></td>
+                            <td>${count}</td>
+                            <td>${tfVal.toFixed(4)}</td>
+                        </tr>
+                    `;
+                }).join("")}
+            `;
+        }
+
+        // Step 5 Render (Sparse Vector)
+        const newVector = result.vectors['new'] || {};
+        if (Object.keys(newVector).length === 0) {
+            document.getElementById("vectorTable").innerHTML = "<tr><td>Empty vector</td></tr>";
+            document.getElementById("vectorText").textContent = "{}";
+        } else {
+            const vectorKeys = Object.keys(newVector);
+            document.getElementById("vectorTable").innerHTML = `
+                <tr>
+                    ${vectorKeys.map(k => `<th>${k}</th>`).join("")}
+                </tr>
+                <tr>
+                    ${vectorKeys.map(k => `<td>${newVector[k].toFixed(4)}</td>`).join("")}
+                </tr>
+            `;
+            document.getElementById("vectorText").textContent = JSON.stringify(newVector, null, 2);
+        }
+
+        // Step 6 Render (Cosine Similarity & Title Suggestion)
+        const scoresElement = document.getElementById("scores");
+        if (samples.length === 0) {
+            scoresElement.innerHTML = "<p>No sample tickets to evaluate.</p>";
+            document.getElementById("resultText").textContent = "Add sample tickets to generate title suggestions.";
+        } else {
+            const scoresList = result.scores || [];
+            scoresElement.innerHTML = scoresList.map(item => {
+                const passed = item.score >= currentThreshold;
+                return `
+                    <div class="score">
+                        <div class="score-header">
+                            <div>
+                                <strong>Ticket #${item.sample.id}: ${item.sample.title}</strong>
+                                ${passed ? `<span class="badge badge-success">&ge; ${currentThreshold.toFixed(2)} Match</span>` : `<span class="badge badge-muted">&lt; ${currentThreshold.toFixed(2)} Match</span>`}
+                            </div>
+                            <strong>${item.score.toFixed(4)}</strong>
+                        </div>
+                        <div class="bar">
+                            <div class="bar-fill ${passed ? 'passed' : ''}" style="width: ${Math.min(100, Math.max(0, item.score * 100))}%;"></div>
+                        </div>
+                        <small style="color: #64748b; margin-top: 4px; display: block;">"${item.sample.description}"</small>
+                    </div>
+                `;
+            }).join("");
+
+            if (result.title) {
+                document.getElementById("resultText").innerHTML =
+                    `Best match is <strong>Ticket #${result.bestMatch.sample.id}</strong> ("${result.bestMatch.sample.title}") with similarity score <strong>${result.bestMatch.score.toFixed(4)}</strong> (&ge; ${currentThreshold.toFixed(2)}).<br>Suggested Title: <span style="font-size: 18px; color: #16a34a; font-weight: bold;">"${result.title}"</span>`;
+            } else {
+                const topScore = result.bestMatch ? result.bestMatch.score.toFixed(4) : "0.0000";
+                document.getElementById("resultText").innerHTML =
+                    `No title suggested. Highest similarity score was <strong>${topScore}</strong>, which is below the minimum threshold of <strong>${currentThreshold.toFixed(2)}</strong>.`;
+            }
+        }
+    }
+
+    /*
+     * ============================================================
+     * INPUT EDITORS & CONTROLS
+     * ============================================================
+     */
+
+    function renderTicketsEditor() {
+        const container = document.getElementById("ticketsEditor");
+        container.innerHTML = samples.map((sample, index) => `
+            <div class="ticket-card">
+                <div class="ticket-header">
+                    <span>Sample Ticket #${sample.id}</span>
+                    ${samples.length > 1 ? `<button type="button" data-index="${index}" class="btn-danger delete-ticket-btn">Delete</button>` : ''}
+                </div>
+                <div class="ticket-inputs">
+                    <input type="text" data-index="${index}" data-field="title" class="ticket-input" value="${sample.title.replace(/"/g, '&quot;')}" placeholder="Ticket Title">
+                    <input type="text" data-index="${index}" data-field="description" class="ticket-input" value="${sample.description.replace(/"/g, '&quot;')}" placeholder="Ticket Description">
+                </div>
+            </div>
+        `).join("");
+
+        container.querySelectorAll(".ticket-input").forEach(input => {
+            input.addEventListener("input", (e) => {
+                const idx = parseInt(e.target.getAttribute("data-index"), 10);
+                const field = e.target.getAttribute("data-field");
+                samples[idx][field] = e.target.value;
+                updateCalculations();
+            });
+        });
+
+        container.querySelectorAll(".delete-ticket-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const idx = parseInt(e.target.getAttribute("data-index"), 10);
+                samples.splice(idx, 1);
+                renderTicketsEditor();
+                updateCalculations();
+            });
+        });
+    }
+
+    document.getElementById("addTicketBtn").addEventListener("click", () => {
+        const nextId = samples.length > 0 ? Math.max(...samples.map(s => s.id)) + 1 : 1;
+        samples.push({
+            id: nextId,
+            title: 'New Issue Title',
+            description: 'Description of the new issue'
+        });
+        renderTicketsEditor();
+        updateCalculations();
+    });
+
+    document.getElementById("newContextInput").addEventListener("input", (e) => {
+        currentContext = e.target.value;
+        updateCalculations();
+    });
+
+    document.getElementById("thresholdInput").addEventListener("input", (e) => {
+        const parsed = parseFloat(e.target.value);
+        currentThreshold = isNaN(parsed) ? 0.0 : Math.max(0, Math.min(1, parsed));
+        updateCalculations();
+    });
+
+    /*
+     * ============================================================
+     * INITIALIZATION
+     * ============================================================
+     */
+
+    renderTicketsEditor();
+    updateCalculations();
     showStep(currentStep);
 
 </script>

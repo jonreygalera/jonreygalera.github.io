@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TF-IDF Visualizer</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            color: #0f172a;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .formula {
+            background: #eff6ff;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            margin: 15px 0;
+        }
+
+        .tickets {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .ticket {
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .ticket strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .word {
+            display: inline-block;
+            background: #e2e8f0;
+            padding: 7px 10px;
+            border-radius: 6px;
+            margin: 4px;
+            font-family: monospace;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th,
+        td {
+            border: 1px solid #e2e8f0;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background: #f8fafc;
+        }
+
+        .highlight {
+            background: #dbeafe;
+            font-weight: bold;
+        }
+
+        .score {
+            margin: 15px 0;
+        }
+
+        .score-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .bar {
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: #2563eb;
+            transition: width 0.5s;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 7px;
+            background: #2563eb;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .step-indicator {
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+
+        .result {
+            background: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            table {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>TF-IDF Visualizer</h1>
+
+    <p class="subtitle">
+        Step through how a text message becomes numbers and how we compare it
+        with previous tickets.
+    </p>
+
+
+    <!-- =========================================================
+         STEP 1
+    ========================================================== -->
+
+    <div class="card step active">
+
+        <div class="step-indicator">
+            Step 1 of 6
+        </div>
+
+        <h2>1. Start with the Corpus</h2>
+
+        <p>
+            Our <strong>corpus</strong> is a collection of old tickets.
+        </p>
+
+        <div class="tickets">
+
+            <div class="ticket">
+                <strong>Ticket 1</strong>
+                login nms error
+            </div>
+
+            <div class="ticket">
+                <strong>Ticket 2</strong>
+                password nms reset
+            </div>
+
+            <div class="ticket">
+                <strong>Ticket 3</strong>
+                login email error
+            </div>
+
+        </div>
+
+        <div class="formula">
+            New comment:<br>
+            <strong>I have encountered login error</strong>
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         STEP 2
+    ========================================================== -->
+
+    <div class="card step">
+
+        <div class="step-indicator">
+            Step 2 of 6
+        </div>
+
+        <h2>2. Build the Vocabulary</h2>
+
+        <p>
+            Take every unique word from the corpus.
+        </p>
+
+        <div id="vocabulary"></div>
+
+        <h3>Document Frequency (DF)</h3>
+
+        <table id="dfTable"></table>
+
+    </div>
+
+
+    <!-- =========================================================
+         STEP 3
+    ========================================================== -->
+
+    <div class="card step">
+
+        <div class="step-indicator">
+            Step 3 of 6
+        </div>
+
+        <h2>3. Calculate IDF</h2>
+
+        <div class="formula">
+            IDF = log₁₀(N / DF)
+        </div>
+
+        <p>
+            N = 3 documents
+        </p>
+
+        <table id="idfTable"></table>
+
+    </div>
+
+
+    <!-- =========================================================
+         STEP 4
+    ========================================================== -->
+
+    <div class="card step">
+
+        <div class="step-indicator">
+            Step 4 of 6
+        </div>
+
+        <h2>4. Calculate TF</h2>
+
+        <p>
+            New comment:
+        </p>
+
+        <div class="formula">
+            I have encountered login error
+        </div>
+
+        <div class="formula">
+            TF = word count / total words
+        </div>
+
+        <table id="tfTable"></table>
+
+    </div>
+
+
+    <!-- =========================================================
+         STEP 5
+    ========================================================== -->
+
+    <div class="card step">
+
+        <div class="step-indicator">
+            Step 5 of 6
+        </div>
+
+        <h2>5. Calculate TF-IDF</h2>
+
+        <div class="formula">
+            TF-IDF = TF × IDF
+        </div>
+
+        <h3>New Comment Vector</h3>
+
+        <table id="vectorTable"></table>
+
+        <div class="result">
+
+            <strong>Important:</strong>
+
+            <p>
+                The text has now become a vector of numbers.
+            </p>
+
+            <p id="vectorText"></p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         STEP 6
+    ========================================================== -->
+
+    <div class="card step">
+
+        <div class="step-indicator">
+            Step 6 of 6
+        </div>
+
+        <h2>6. Cosine Similarity</h2>
+
+        <div class="formula">
+            similarity =
+            (A · B) / (|A| × |B|)
+        </div>
+
+        <p>
+            Compare the new comment against each ticket.
+        </p>
+
+        <div id="scores"></div>
+
+        <div class="result">
+
+            <strong>Result</strong>
+
+            <p id="resultText"></p>
+
+        </div>
+
+    </div>
+
+
+    <!-- =========================================================
+         NAVIGATION
+    ========================================================== -->
+
+    <div class="buttons">
+
+        <button id="previousButton">
+            ← Previous
+        </button>
+
+        <button id="nextButton">
+            Next →
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /*
+     * ============================================================
+     * DATA
+     * ============================================================
+     */
+
+    const documents = [
+
+        ["login", "nms", "error"],
+
+        ["password", "nms", "reset"],
+
+        ["login", "email", "error"]
+
+    ];
+
+    const newComment = [
+
+        "i",
+        "have",
+        "encountered",
+        "login",
+        "error"
+
+    ];
+
+
+    /*
+     * ============================================================
+     * 1. BUILD VOCABULARY
+     * ============================================================
+     */
+
+    const vocabulary = [
+        ...new Set(
+            documents.flat()
+        )
+    ];
+
+    console.log("Vocabulary:", vocabulary);
+
+
+    /*
+     * ============================================================
+     * 2. DOCUMENT FREQUENCY
+     * ============================================================
+     *
+     * DF = number of documents containing the word
+     *
+     * login  -> 2
+     * nms    -> 2
+     * error  -> 2
+     * password -> 1
+     * reset    -> 1
+     * email    -> 1
+     */
+
+    const df = {};
+
+    vocabulary.forEach(word => {
+
+        df[word] = documents.filter(document =>
+
+            document.includes(word)
+
+        ).length;
+
+    });
+
+
+    /*
+     * ============================================================
+     * 3. IDF
+     * ============================================================
+     *
+     * IDF = log10(N / DF)
+     *
+     * N = number of documents
+     */
+
+    const N = documents.length;
+
+    const idf = {};
+
+    vocabulary.forEach(word => {
+
+        idf[word] =
+            Math.log10(N / df[word]);
+
+    });
+
+
+    /*
+     * ============================================================
+     * 4. TF
+     * ============================================================
+     *
+     * TF = word count / total words
+     */
+
+    function calculateTF(words, word) {
+
+        const count =
+            words.filter(
+                item => item === word
+            ).length;
+
+        return count / words.length;
+    }
+
+
+    /*
+     * ============================================================
+     * 5. TF-IDF
+     * ============================================================
+     */
+
+    function calculateTFIDF(words) {
+
+        return vocabulary.map(word => {
+
+            const tf =
+                calculateTF(words, word);
+
+            const value =
+                tf * idf[word];
+
+            return value;
+
+        });
+
+    }
+
+
+    /*
+     * ============================================================
+     * VECTORS
+     * ============================================================
+     */
+
+    const ticketVectors =
+        documents.map(document => {
+
+            return calculateTFIDF(document);
+
+        });
+
+
+    const newCommentVector =
+        calculateTFIDF(newComment);
+
+
+    console.log(
+        "New comment vector:",
+        newCommentVector
+    );
+
+
+    /*
+     * ============================================================
+     * 6. COSINE SIMILARITY
+     * ============================================================
+     */
+
+    function cosineSimilarity(A, B) {
+
+        let dotProduct = 0;
+
+        let magnitudeA = 0;
+
+        let magnitudeB = 0;
+
+
+        for (let i = 0; i < A.length; i++) {
+
+            dotProduct +=
+                A[i] * B[i];
+
+            magnitudeA +=
+                A[i] * A[i];
+
+            magnitudeB +=
+                B[i] * B[i];
+
+        }
+
+
+        magnitudeA =
+            Math.sqrt(magnitudeA);
+
+        magnitudeB =
+            Math.sqrt(magnitudeB);
+
+
+        if (
+            magnitudeA === 0 ||
+            magnitudeB === 0
+        ) {
+
+            return 0;
+
+        }
+
+
+        return (
+            dotProduct /
+            (magnitudeA * magnitudeB)
+        );
+
+    }
+
+
+    /*
+     * ============================================================
+     * CALCULATE SIMILARITIES
+     * ============================================================
+     */
+
+    const similarities =
+        ticketVectors.map(vector => {
+
+            return cosineSimilarity(
+                newCommentVector,
+                vector
+            );
+
+        });
+
+
+    console.log(
+        "Similarities:",
+        similarities
+    );
+
+
+    /*
+     * ============================================================
+     * RENDER VOCABULARY
+     * ============================================================
+     */
+
+    const vocabularyElement =
+        document.getElementById("vocabulary");
+
+
+    vocabularyElement.innerHTML =
+        vocabulary.map(word => {
+
+            return `
+                <span class="word">
+                    ${word}
+                </span>
+            `;
+
+        }).join("");
+
+
+    /*
+     * ============================================================
+     * RENDER DF TABLE
+     * ============================================================
+     */
+
+    document.getElementById("dfTable").innerHTML = `
+
+        <tr>
+            <th>Word</th>
+            <th>DF</th>
+            <th>Meaning</th>
+        </tr>
+
+        ${vocabulary.map(word => `
+
+            <tr>
+
+                <td>
+                    <strong>${word}</strong>
+                </td>
+
+                <td>
+                    ${df[word]}
+                </td>
+
+                <td>
+                    Appears in ${df[word]} document(s)
+                </td>
+
+            </tr>
+
+        `).join("")}
+
+    `;
+
+
+    /*
+     * ============================================================
+     * RENDER IDF TABLE
+     * ============================================================
+     */
+
+    document.getElementById("idfTable").innerHTML = `
+
+        <tr>
+            <th>Word</th>
+            <th>DF</th>
+            <th>IDF</th>
+        </tr>
+
+        ${vocabulary.map(word => `
+
+            <tr>
+
+                <td>
+                    ${word}
+                </td>
+
+                <td>
+                    ${df[word]}
+                </td>
+
+                <td>
+                    ${idf[word].toFixed(4)}
+                </td>
+
+            </tr>
+
+        `).join("")}
+
+    `;
+
+
+    /*
+     * ============================================================
+     * RENDER TF TABLE
+     * ============================================================
+     */
+
+    document.getElementById("tfTable").innerHTML = `
+
+        <tr>
+
+            <th>Word</th>
+            <th>Count</th>
+            <th>TF</th>
+
+        </tr>
+
+        ${vocabulary.map(word => {
+
+            const count =
+                newComment.filter(
+                    item => item === word
+                ).length;
+
+            const tf =
+                calculateTF(
+                    newComment,
+                    word
+                );
+
+            return `
+
+                <tr
+                    class="${
+                        count > 0
+                            ? "highlight"
+                            : ""
+                    }"
+                >
+
+                    <td>
+                        ${word}
+                    </td>
+
+                    <td>
+                        ${count}
+                    </td>
+
+                    <td>
+                        ${tf.toFixed(2)}
+                    </td>
+
+                </tr>
+
+            `;
+
+        }).join("")}
+
+    `;
+
+
+    /*
+     * ============================================================
+     * RENDER TF-IDF VECTOR
+     * ============================================================
+     */
+
+    document.getElementById("vectorTable").innerHTML = `
+
+        <tr>
+
+            ${vocabulary.map(word => `
+                <th>${word}</th>
+            `).join("")}
+
+        </tr>
+
+        <tr>
+
+            ${newCommentVector.map(value => `
+                <td>
+                    ${value.toFixed(5)}
+                </td>
+            `).join("")}
+
+        </tr>
+
+    `;
+
+
+    document.getElementById("vectorText").textContent =
+
+        `[${newCommentVector
+            .map(value => value.toFixed(5))
+            .join(", ")}]`;
+
+
+    /*
+     * ============================================================
+     * RENDER SIMILARITY SCORES
+     * ============================================================
+     */
+
+    const scoresElement =
+        document.getElementById("scores");
+
+
+    scoresElement.innerHTML =
+        similarities.map(
+            (score, index) => {
+
+                return `
+
+                    <div class="score">
+
+                        <div class="score-header">
+
+                            <strong>
+                                Ticket ${index + 1}
+                            </strong>
+
+                            <strong>
+                                ${score.toFixed(3)}
+                            </strong>
+
+                        </div>
+
+                        <div class="bar">
+
+                            <div
+                                class="bar-fill"
+                                style="
+                                    width: ${score * 100}%;
+                                "
+                            ></div>
+
+                        </div>
+
+                        <small>
+                            ${documents[index].join(" ")}
+                        </small>
+
+                    </div>
+
+                `;
+
+            }
+        ).join("");
+
+
+    /*
+     * ============================================================
+     * FIND HIGHEST SIMILARITY
+     * ============================================================
+     */
+
+    const highestScore =
+        Math.max(...similarities);
+
+    const bestTicket =
+        similarities.indexOf(highestScore);
+
+
+    document.getElementById("resultText").textContent =
+
+        `Ticket ${bestTicket + 1} has the highest
+         similarity score in this example:
+         ${highestScore.toFixed(3)}.`;
+
+
+    /*
+     * ============================================================
+     * STEP NAVIGATION
+     * ============================================================
+     */
+
+    const steps =
+        document.querySelectorAll(".step");
+
+    let currentStep = 0;
+
+
+    function showStep(step) {
+
+        steps.forEach(
+            (element, index) => {
+
+                element.classList.toggle(
+                    "active",
+                    index === step
+                );
+
+            }
+        );
+
+
+        document.getElementById(
+            "previousButton"
+        ).disabled =
+            step === 0;
+
+
+        document.getElementById(
+            "nextButton"
+        ).disabled =
+            step === steps.length - 1;
+
+    }
+
+
+    /*
+     * NEXT
+     */
+
+    document.getElementById(
+        "nextButton"
+    ).addEventListener(
+        "click",
+        () => {
+
+            if (
+                currentStep <
+                steps.length - 1
+            ) {
+
+                currentStep++;
+
+                showStep(currentStep);
+
+            }
+
+        }
+    );
+
+
+    /*
+     * PREVIOUS
+     */
+
+    document.getElementById(
+        "previousButton"
+    ).addEventListener(
+        "click",
+        () => {
+
+            if (currentStep > 0) {
+
+                currentStep--;
+
+                showStep(currentStep);
+
+            }
+
+        }
+    );
+
+
+    /*
+     * INITIAL STATE
+     */
+
+    showStep(currentStep);
+
+</script>
+
+</body>
+</html>
